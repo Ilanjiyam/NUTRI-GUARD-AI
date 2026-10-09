@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriGuard AI — Intelligent Ingredient Safety & Tamil Voice Assistant</title>
+    <meta name="description" content="NutriGuard AI analyzes food and cosmetic ingredients for age-specific safety, allergens, and chemical additives with full Tamil and English localization and Tamil Voice Assistant.">
+    <meta name="referrer" content="no-referrer">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <!-- Optional CDN for Client-side Tesseract OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+</head>
+<body>
+
+    <!-- Header Bar -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-logo" id="brand-home-btn" title="NutriGuard AI Home">
+                <div class="logo-icon">🛡️</div>
+                <div class="brand-text">
+                    <h1 data-i18n="app.title">NutriGuard AI</h1>
+                    <span class="brand-badge" data-i18n="app.badge">AI Safety Guardian</span>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <div class="lang-toggle-group" id="header-lang-toggle" role="group" aria-label="Language selection">
+                    <button type="button" class="lang-pill-btn active" data-lang="ta" id="lang-btn-ta">
+                        🇮🇳 தமிழ்
+                    </button>
+                    <button type="button" class="lang-pill-btn" data-lang="en" id="lang-btn-en">
+                        🇬🇧 English
+                    </button>
+                </div>
+                <button class="nav-action-btn" id="header-restart-btn" data-i18n="nav.restart">
+                    🔄 Start New Scan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Wizard Bar -->
+    <nav class="wizard-progress" aria-label="Analysis Process Steps">
+        <div class="wizard-steps">
+            <div class="wizard-track-bg"></div>
+            <div class="wizard-track-fill" style="width: 0%;"></div>
+
+            <button class="wizard-step-node active" data-step="1" id="step-node-1" title="Language">
+                <div class="step-circle">1</div>
+                <span class="step-label" data-i18n="steps.step1">Language</span>
+            </button>
+            <button class="wizard-step-node" data-step="2" id="step-node-2" title="Age Group">
+                <div class="step-circle">2</div>
+                <span class="step-label" data-i18n="steps.step2">Age Group</span>
+            </button>
+            <button class="wizard-step-node" data-step="3" id="step-node-3" title="Product Type">
+                <div class="step-circle">3</div>
+                <span class="step-label" data-i18n="steps.step3">Product Type</span>
+            </button>
+            <button class="wizard-step-node" data-step="4" id="step-node-4" title="Scan / Upload">
+                <div class="step-circle">4</div>
+                <span class="step-label" data-i18n="steps.step4">Scan / Upload</span>
+            </button>
+            <button class="wizard-step-node" data-step="5" id="step-node-5" title="OCR Extract">
+                <div class="step-circle">5</div>
+                <span class="step-label" data-i18n="steps.step5">OCR Extract</span>
+            </button>
+            <button class="wizard-step-node" data-step="6" id="step-node-6" title="Ingredients">
+                <div class="step-circle">6</div>
+                <span class="step-label" data-i18n="steps.step6">Ingredients</span>
+            </button>
+            <button class="wizard-step-node" data-step="7" id="step-node-7" title="Safety Analysis">
+                <div class="step-circle">7</div>
+                <span class="step-label" data-i18n="steps.step7">Safety Analysis</span>
+            </button>
+            <button class="wizard-step-node" data-step="8" id="step-node-8" title="Explanation">
+                <div class="step-circle">8</div>
+                <span class="step-label" data-i18n="steps.step8">Explanation</span>
+            </button>
+            <button class="wizard-step-node" data-step="9" id="step-node-9" title="Suggestions">
+                <div class="step-circle">9</div>
+                <span class="step-label" data-i18n="steps.step9">Suggestions</span>
+            </button>
+            <button class="wizard-step-node" data-step="10" id="step-node-10" title="Overall Result">
+                <div class="step-circle">10</div>
+                <span class="step-label" data-i18n="steps.step10">Overall Result</span>
+            </button>
+            <button class="wizard-step-node" data-step="11" id="step-node-11" title="Voice Assistant">
+                <div class="step-circle">🔊</div>
+                <span class="step-label" data-i18n="steps.step11">Voice Assistant</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="app-main">
+
+        <!-- =================================================================
+             STEP 1: SELECT YOUR LANGUAGE (MANDATORY FIRST SCREEN)
+             ================================================================= -->
+        <section class="step-screen active" id="step-screen-1" aria-labelledby="lang-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="lang-title" data-i18n="languageScreen.title">Select Your Language</h2>
+                <p class="screen-subtitle" data-i18n="languageScreen.subtitle">
+                    Choose your preferred language to begin. The entire interface, ingredient explanations, safety reports, and voice assistant will adapt to your choice.
+                </p>
+            </div>
+
+            <div class="lang-select-grid">
+                <!-- Tamil Card (Default Primary) -->
+                <div class="lang-card selected" data-lang="ta" id="card-lang-ta">
+                    <div class="lang-check-badge">✓</div>
+                    <div class="lang-flag">🇮🇳</div>
+                    <div class="lang-name-native">தமிழ் (Tamil)</div>
+                    <div class="lang-name-en">முழுமையான தமிழ் இடைமுகம் & குரல் வழிகாட்டி</div>
+                    <p class="lang-desc" data-i18n="languageScreen.tamilDesc">
+                        முழு இடைமுகம், மூலப்பொருள் எச்சரிக்கைகள், எளிய விளக்கங்கள் மற்றும் தமிழ் குரல் வழிகாட்டி.
+                    </p>
+                </div>
+
+                <!-- English Card -->
+                <div class="lang-card" data-lang="en" id="card-lang-en">
+                    <div class="lang-check-badge">✓</div>
+                    <div class="lang-flag">🇬🇧</div>
+                    <div class="lang-name-native">English</div>
+                    <div class="lang-name-en">Global English Interface</div>
+                    <p class="lang-desc" data-i18n="languageScreen.englishDesc">
+                        Full interface, health explanations, ingredient risk alerts, and voice assistant in English.
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <button class="btn-primary" id="btn-lang-continue" data-i18n="languageScreen.continueBtn">
+                    Continue with Selected Language →
+                </button>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem;" data-i18n="languageScreen.footerNote">
+                    You can easily switch your language at any time in the top menu.
+                </p>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             STEP 2: SELECT AGE GROUP
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-2" aria-labelledby="age-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="age-title" data-i18n="ageScreen.title">Select Age Group</h2>
+                <p class="screen-subtitle" data-i18n="ageScreen.subtitle">
+                    Safety thresholds and health risks vary drastically by age. Tell us who will consume or use this product:
+                </p>
+            </div>
+
+            <div class="age-cards-grid">
+                <!-- Infant 0-2 -->
+                <div class="age-card" data-age="infant" id="age-card-infant">
+                    <div class="age-header">
+                        <span class="age-icon">👶</span>
+                        <span class="age-range" data-i18n="ageScreen.infant.age">0 – 2 Years</span>
+                    </div>
+                    <h3 class="age-title" data-i18n="ageScreen.infant.title">Infant & Toddler</h3>
+                    <p class="age-desc" data-i18n="ageScreen.infant.desc">
+                        Extremely sensitive organs. High risk from honey, artificial sweeteners, sodium, chemical preservatives, and synthetic dyes.
+                    </p>
+                </div>
+
+                <!-- Child 3-12 -->
+                <div class="age-card selected" data-age="child" id="age-card-child">
+                    <div class="age-header">
+                        <span class="age-icon">🧒</span>
+                        <span class="age-range" data-i18n="ageScreen.child.age">3 – 12 Years</span>
+                    </div>
+                    <h3 class="age-title" data-i18n="ageScreen.child.title">Children</h3>
+                    <p class="age-desc" data-i18n="ageScreen.child.desc">
+                        Developing nervous and metabolic system. Vulnerable to hyperactivity dyes (Tartrazine), excess sugar, and caffeine.
+                    </p>
+                </div>
+
+                <!-- Teen 13-18 -->
+                <div class="age-card" data-age="teen" id="age-card-teen">
+                    <div class="age-header">
+                        <span class="age-icon">🧑</span>
+                        <span class="age-range" data-i18n="ageScreen.teen.age">13 – 18 Years</span>
+                    </div>
+                    <h3 class="age-title" data-i18n="ageScreen.teen.title">Teens & Adolescents</h3>
+                    <p class="age-desc" data-i18n="ageScreen.teen.desc">
+                        Rapid growth phase. Vulnerable to excessive caffeine/taurine in energy drinks and endocrine disruptors in cosmetics.
+                    </p>
+                </div>
+
+                <!-- Adult 19-59 -->
+                <div class="age-card" data-age="adult" id="age-card-adult">
+                    <div class="age-header">
+                        <span class="age-icon">🧑‍💼</span>
+                        <span class="age-range" data-i18n="ageScreen.adult.age">19 – 59 Years</span>
+                    </div>
+                    <h3 class="age-title" data-i18n="ageScreen.adult.title">Adults</h3>
+                    <p class="age-desc" data-i18n="ageScreen.adult.desc">
+                        Standard adult toxicity levels. Evaluated for trans fats, carcinogens, cardio-metabolic risks, and chemical build-up.
+                    </p>
+                </div>
+
+                <!-- Senior 60+ -->
+                <div class="age-card" data-age="senior" id="age-card-senior">
+                    <div class="age-header">
+                        <span class="age-icon">👴</span>
+                        <span class="age-range" data-i18n="ageScreen.senior.age">60+ Years</span>
+                    </div>
+                    <h3 class="age-title" data-i18n="ageScreen.senior.title">Elderly / Seniors</h3>
+                    <p class="age-desc" data-i18n="ageScreen.senior.desc">
+                        Heightened risk from sodium (hypertension), harsh preservatives, synthetic sweeteners, and kidney-taxing additives.
+                    </p>
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-age-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-age-next" data-i18n="buttons.next">Next Step →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 3: SELECT PRODUCT TYPE
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-3" aria-labelledby="product-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="product-title" data-i18n="productScreen.title">Select Product Category</h2>
+                <p class="screen-subtitle" data-i18n="productScreen.subtitle">
+                    Select the type of product to apply category-specific safety standards:
+                </p>
+            </div>
+
+            <div class="product-type-grid">
+                <!-- Food & Bev -->
+                <div class="product-type-card selected" data-type="food" id="ptype-food">
+                    <div class="product-icon">🥗</div>
+                    <h3 class="product-title" data-i18n="productScreen.food.title">Food & Beverages</h3>
+                    <p class="product-desc" data-i18n="productScreen.food.desc">
+                        Packaged snacks, beverages, baby foods, cereals, sauces, dairy products, and baked goods.
+                    </p>
+                </div>
+
+                <!-- Cosmetics -->
+                <div class="product-type-card" data-type="cosmetics" id="ptype-cosmetics">
+                    <div class="product-icon">🧴</div>
+                    <h3 class="product-title" data-i18n="productScreen.cosmetics.title">Skincare & Cosmetics</h3>
+                    <p class="product-desc" data-i18n="productScreen.cosmetics.desc">
+                        Lotions, creams, shampoos, soaps, sunscreens, hair dyes, and personal grooming products.
+                    </p>
+                </div>
+
+                <!-- Supplements -->
+                <div class="product-type-card" data-type="supplements" id="ptype-supplements">
+                    <div class="product-icon">💊</div>
+                    <h3 class="product-title" data-i18n="productScreen.supplements.title">Dietary Supplements</h3>
+                    <p class="product-desc" data-i18n="productScreen.supplements.desc">
+                        Vitamins, protein powders, herbal extracts, workout supplements, and energy tonics.
+                    </p>
+                </div>
+
+                <!-- Household -->
+                <div class="product-type-card" data-type="household" id="ptype-household">
+                    <div class="product-icon">🧼</div>
+                    <h3 class="product-title" data-i18n="productScreen.household.title">Household & Personal Care</h3>
+                    <p class="product-desc" data-i18n="productScreen.household.desc">
+                        Detergents, toothpastes, mouthwashes, hand sanitizers, and household cleaners.
+                    </p>
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-product-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-product-next" data-i18n="buttons.next">Next Step →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 4: SCAN / UPLOAD PRODUCT LABEL
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-4" aria-labelledby="scan-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="scan-title" data-i18n="scanScreen.title">Scan or Upload Product Label</h2>
+                <p class="screen-subtitle" data-i18n="scanScreen.subtitle">
+                    Take a picture with your camera, upload an image from your device, or try one of our instant sample labels:
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="scan-tabs">
+                <button class="tab-btn" data-tab="camera" id="tab-btn-camera" data-i18n="scanScreen.tabCamera">📷 Live Camera</button>
+                <button class="tab-btn" data-tab="upload" id="tab-btn-upload" data-i18n="scanScreen.tabUpload">📁 Upload Image</button>
+                <button class="tab-btn active" data-tab="samples" id="tab-btn-samples" data-i18n="scanScreen.tabSamples">⚡ Quick Samples</button>
+            </div>
+
+            <!-- Panel 1: Live Camera -->
+            <div class="scan-panel" id="scan-panel-camera">
+                <div class="camera-scanner-container">
+                    <video id="camera-video" playsinline autoplay muted></video>
+                    <div class="scanner-overlay">
+                        <div class="scanner-reticle"></div>
+                        <div class="scanner-laser-line"></div>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <button class="btn-primary" id="btn-camera-start" data-i18n="scanScreen.cameraStart">Start Camera Scanner</button>
+                    <button class="btn-primary" id="btn-camera-capture" style="display:none;" data-i18n="scanScreen.cameraCapture">Capture Label</button>
+                    <button class="btn-secondary" id="btn-camera-stop" style="display:none;" data-i18n="scanScreen.cameraStop">Turn Off Camera</button>
+                </div>
+            </div>
+
+            <!-- Panel 2: Upload File -->
+            <div class="scan-panel" id="scan-panel-upload">
+                <input type="file" id="file-upload-input" accept="image/*" style="display:none;">
+                <div class="dropzone-container" id="upload-dropzone">
+                    <div class="dropzone-icon">📥</div>
+                    <h3 style="margin-bottom:0.4rem;" data-i18n="scanScreen.uploadDropzone">Drag & drop your product label here, or click to browse</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted);" data-i18n="scanScreen.uploadSupports">Supports JPG, PNG, WEBP, and HEIC up to 10MB</p>
+                </div>
+            </div>
+
+            <!-- Panel 3: Quick Samples -->
+            <div class="scan-panel active" id="scan-panel-samples">
+                <p style="text-align:center; color:var(--primary-400); font-size:0.92rem; font-weight:600;" data-i18n="scanScreen.samplePrompt">
+                    Or click any realistic preset product label to test instantly:
+                </p>
+                <div class="sample-products-grid" id="sample-products-list">
+                    <!-- Injected dynamically via sampleProducts.js -->
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-scan-back" data-i18n="buttons.back">← Back</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 5: OCR EXTRACTS INFORMATION
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-5" aria-labelledby="ocr-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="ocr-title" data-i18n="ocrScreen.title">OCR Extracted Information</h2>
+                <p class="screen-subtitle" data-i18n="ocrScreen.subtitle">
+                    Our Optical Character Recognition engine extracted the following text from the label. You can review or edit if necessary:
+                </p>
+            </div>
+
+            <div class="ocr-review-box">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem; font-size:0.85rem; color:var(--text-secondary);">
+                    <span data-i18n="ocrScreen.rawTextLabel">Extracted Text from Label:</span>
+                    <span><strong id="ocr-char-count">0</strong> characters detected</span>
+                </div>
+                <textarea class="ocr-textarea" id="ocr-raw-input" spellcheck="false" placeholder="Ingredients text will appear here..."></textarea>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-top:0.5rem;" data-i18n="ocrScreen.editPrompt">
+                    Feel free to correct any typographical errors before parsing.
+                </p>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-ocr-rescan" data-i18n="ocrScreen.reScanBtn">Re-scan Label</button>
+                <button class="btn-primary" id="btn-ocr-parse" data-i18n="ocrScreen.parseBtn">Parse & Extract Ingredients →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 6: SHOW INGREDIENTS
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-6" aria-labelledby="ing-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="ing-title" data-i18n="ingredientsScreen.title">Identified Ingredients & Additives</h2>
+                <p class="screen-subtitle" data-i18n="ingredientsScreen.subtitle">
+                    NutriGuard AI automatically parsed and identified individual ingredients, E-numbers/INS codes, and allergens:
+                </p>
+            </div>
+
+            <div class="ingredients-summary-bar">
+                <div class="stat-pill">
+                    <span>🧪 Total Ingredients:</span>
+                    <strong id="stat-total-ingredients">0</strong>
+                </div>
+                <div class="stat-pill">
+                    <span>🏷️ Chemical Additives:</span>
+                    <strong id="stat-total-additives">0</strong>
+                </div>
+                <div class="stat-pill hazard">
+                    <span>⚠️ Detected Allergens:</span>
+                    <strong id="stat-total-allergens">0</strong>
+                </div>
+            </div>
+
+            <div class="ingredients-chips-container" id="ingredients-chips-list">
+                <!-- Chips dynamically injected -->
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-ingredients-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-ingredients-analyze" data-i18n="ingredientsScreen.analyzeBtn">Run Age-Based Safety Analysis →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 7: AGE-BASED SAFETY ANALYSIS
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-7" aria-labelledby="analysis-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="analysis-title" data-i18n="analysisScreen.title">Age-Based Safety Analysis</h2>
+                <p class="screen-subtitle" id="analysis-age-subtitle" data-i18n="analysisScreen.subtitle">
+                    Every ingredient has been evaluated against safety standards tailored for your selected age group.
+                </p>
+            </div>
+
+            <div class="screen-sub-actions" style="margin-bottom:1rem; display:flex; justify-content:flex-end;">
+                <button type="button" class="btn-voice-quick" id="btn-listen-hazards">
+                    🔊 <span id="btn-listen-hazards-text">தமிழில் எச்சரிக்கைகளைக் கேளுங்கள்</span>
+                </button>
+            </div>
+
+            <div class="analysis-cards-list" id="analysis-hazard-cards">
+                <!-- Hazard cards dynamically injected -->
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-analysis-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-analysis-next" data-i18n="buttons.next">View Simple Explanation →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 8: SIMPLE EXPLANATION
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-8" aria-labelledby="explanation-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="explanation-title" data-i18n="explanationScreen.title">Simple Explanation</h2>
+                <p class="screen-subtitle" data-i18n="explanationScreen.subtitle">
+                    Plain-language summary of what these ingredients mean for your health in everyday terms:
+                </p>
+            </div>
+
+            <!-- In-screen Language Toolbar & Quick Voice Button -->
+            <div class="explanation-toolbar">
+                <div class="mode-pills" role="tablist" aria-label="Explanation Language">
+                    <button type="button" class="mode-pill-btn active" id="exp-mode-ta">
+                        🇮🇳 தமிழில் விளக்கம் (Tamil)
+                    </button>
+                    <button type="button" class="mode-pill-btn" id="exp-mode-en">
+                        🇬🇧 English
+                    </button>
+                    <button type="button" class="mode-pill-btn" id="exp-mode-both">
+                        🌐 இருமொழிகளிலும் (Bilingual)
+                    </button>
+                </div>
+                <button type="button" class="btn-voice-quick" id="btn-listen-explanation">
+                    🔊 <span id="btn-listen-explanation-text">தமிழில் விளக்கம் கேளுங்கள்</span>
+                </button>
+            </div>
+
+            <div class="explanation-card" id="explanation-main-card">
+                <div class="explanation-section" id="section-takeaway">
+                    <div class="explanation-label" data-i18n="explanationScreen.keyTakeaway">Key Takeaway</div>
+                    <p class="explanation-text" id="explanation-summary-text"></p>
+                </div>
+
+                <div class="explanation-section" id="section-digestive">
+                    <div class="explanation-label" data-i18n="explanationScreen.digestibility">Digestive Impact</div>
+                    <p class="explanation-text" id="explanation-digestive-text"></p>
+                </div>
+
+                <div class="explanation-section" id="section-longterm">
+                    <div class="explanation-label" data-i18n="explanationScreen.longTerm">Long-term Health Consideration</div>
+                    <p class="explanation-text" id="explanation-longterm-text"></p>
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-explanation-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-explanation-next" data-i18n="buttons.next">View Suggestions & Advice →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 9: SUGGESTIONS
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-9" aria-labelledby="suggestions-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="suggestions-title" data-i18n="suggestionsScreen.title">Healthier Suggestions & Alternatives</h2>
+                <p class="screen-subtitle" data-i18n="suggestionsScreen.subtitle">
+                    Personalized recommendations to protect and enhance your health:
+                </p>
+            </div>
+
+            <div class="screen-sub-actions" style="margin-bottom:1rem; display:flex; justify-content:flex-end;">
+                <button type="button" class="btn-voice-quick" id="btn-listen-suggestions">
+                    🔊 <span id="btn-listen-suggestions-text">தமிழில் ஆலோசனைகளைக் கேளுங்கள்</span>
+                </button>
+            </div>
+
+            <div class="suggestions-grid">
+                <div class="suggestion-box">
+                    <h3 data-i18n="suggestionsScreen.recommendationsTitle">📋 Doctor & Nutritionist Advice</h3>
+                    <ul class="suggestion-list" id="suggestions-advice-list"></ul>
+                </div>
+
+                <div class="suggestion-box">
+                    <h3 data-i18n="suggestionsScreen.betterChoiceTitle">🌿 Healthier Alternatives</h3>
+                    <ul class="suggestion-list" id="suggestions-alt-list"></ul>
+                </div>
+            </div>
+
+            <div style="background:var(--bg-card); border:var(--glass-border); border-radius:var(--radius-md); padding:1.25rem; text-align:center;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">Recommended Consumption Limit: </span>
+                <strong style="color:var(--primary-400); font-size:1rem;" id="suggestions-limit-text"></strong>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-suggestions-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-suggestions-next" data-i18n="buttons.next">View Overall Result →</button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 10: OVERALL CONCERN RESULT
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-10" aria-labelledby="result-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="result-title" data-i18n="resultScreen.title">Overall Concern Result</h2>
+                <p class="screen-subtitle" data-i18n="resultScreen.subtitle">
+                    Final synthesized safety verdict for your chosen age profile:
+                </p>
+            </div>
+
+            <div class="verdict-hero-card hazard" id="verdict-hero">
+                <div class="verdict-badge hazard" id="verdict-status-badge">HIGH CONCERN</div>
+                <div class="score-display-ring">
+                    <span id="verdict-score-num">24</span>
+                    <span>/ 100</span>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;" data-i18n="resultScreen.scoreLabel">
+                    NutriGuard Safety Index
+                </p>
+                <p class="verdict-summary-desc" id="verdict-desc-text"></p>
+
+                <!-- Quick Listen Button embedded on Verdict -->
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn-voice-main" id="btn-quick-listen" style="margin: 0 auto;">
+                        🔊 <span data-i18n="voiceScreen.listenBtn">Listen to Safety Verdict</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PRODUCT DESCRIPTION SECTION -->
+            <div class="result-section-card" id="result-product-desc-card">
+                <div class="result-section-header">
+                    <span class="result-section-icon">📦</span>
+                    <h3 class="result-section-title" id="res-prod-title">PRODUCT DESCRIPTION</h3>
+                </div>
+                <div class="product-desc-grid">
+                    <div class="product-desc-field">
+                        <span class="product-desc-label">Product Name</span>
+                        <div class="product-desc-value" id="result-prod-name">Product identification uncertain</div>
+                    </div>
+                    <div class="product-desc-field">
+                        <span class="product-desc-label">Product Category</span>
+                        <div class="product-desc-value" id="result-prod-category">Packaged Food</div>
+                    </div>
+                    <div class="product-desc-field full-width">
+                        <span class="product-desc-label">Label Description</span>
+                        <div class="product-desc-value" id="result-prod-summary">Analysis based strictly on visible label details.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INGREDIENT ANALYSIS SECTION -->
+            <div class="result-section-card" id="result-ingredient-analysis-card">
+                <div class="result-section-header">
+                    <span class="result-section-icon">🔬</span>
+                    <h3 class="result-section-title" id="res-ing-title">INGREDIENT ANALYSIS</h3>
+                </div>
+                <div class="result-ingredient-list" id="result-ingredient-table">
+                    <!-- Dynamic ingredient analysis rows/cards -->
+                </div>
+            </div>
+
+            <!-- NUTRITION SECTION (VISIBLE ONLY WHEN ACTUALLY READABLE FROM LABEL) -->
+            <div class="result-section-card" id="result-nutrition-card" style="display: none;">
+                <div class="result-section-header">
+                    <span class="result-section-icon">📊</span>
+                    <h3 class="result-section-title" id="res-nutr-title">NUTRITION INFORMATION (FROM LABEL)</h3>
+                </div>
+                <div class="nutrition-grid" id="result-nutrition-grid">
+                    <!-- Dynamic nutrition badges/values -->
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-result-back" data-i18n="buttons.back">← Back</button>
+                <button class="btn-primary" id="btn-result-voice">
+                    🔊 <span data-i18n="steps.step11">Voice Assistant Station</span> →
+                </button>
+            </footer>
+        </section>
+
+        <!-- =================================================================
+             STEP 11: VOICE ASSISTANT STATION (TAMIL & ENGLISH AUDIO)
+             ================================================================= -->
+        <section class="step-screen" id="step-screen-11" aria-labelledby="voice-title">
+            <div class="screen-header">
+                <h2 class="screen-title" id="voice-title" data-i18n="voiceScreen.title">🔊 Voice Assistant</h2>
+                <p class="screen-subtitle" data-i18n="voiceScreen.subtitle">
+                    Listen to the complete analysis results, key warnings, and advice read aloud:
+                </p>
+            </div>
+
+            <div class="voice-assistant-card" id="voice-card">
+                <div class="voice-card-header">
+                    <div class="voice-title-box">
+                        <div class="voice-avatar">🎙️</div>
+                        <div>
+                            <h3 style="color:#FFF; font-size:1.15rem;">NutriGuard Voice Assistant</h3>
+                            <span class="voice-status-badge" id="voice-lang-tag">🇮🇳 தமிழ் (ta-IN)</span>
+                        </div>
+                    </div>
+                    <div class="voice-lang-switch-box" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                        <button type="button" class="mode-pill-btn active" id="btn-voice-lang-ta">🇮🇳 தமிழ் குரல் (Tamil)</button>
+                        <button type="button" class="mode-pill-btn" id="btn-voice-lang-en">🇬🇧 English Voice</button>
+                    </div>
+                    <span class="voice-status-badge" id="voice-status-text" data-i18n="voiceScreen.readyState">
+                        Click 'Listen' to hear the voice assistant summarize this report.
+                    </span>
+                </div>
+
+                <!-- Live Animated Waveform Equalizer -->
+                <div class="voice-wave-container" id="voice-wave-container">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+
+                <!-- Read-Along Spoken Script Box -->
+                <div class="voice-spoken-text-box" id="voice-spoken-text"></div>
+
+                <!-- Voice Controls -->
+                <div class="voice-controls-row">
+                    <div class="voice-playback-btns">
+                        <button class="btn-voice-main" id="btn-voice-play">
+                            🔊 <span data-i18n="voiceScreen.listenBtn">Listen to Safety Verdict</span>
+                        </button>
+                        <button class="btn-voice-control" id="btn-voice-pause" style="display:none;" data-i18n="voiceScreen.pauseBtn">
+                            ⏸️ Pause
+                        </button>
+                        <button class="btn-voice-control" id="btn-voice-resume" style="display:none;" data-i18n="voiceScreen.resumeBtn">
+                            ▶️ Resume
+                        </button>
+                        <button class="btn-voice-control" id="btn-voice-stop" style="display:none;" data-i18n="voiceScreen.stopBtn">
+                            ⏹️ Stop
+                        </button>
+                    </div>
+
+                    <div class="voice-speed-selector">
+                        <span data-i18n="voiceScreen.speedLabel">Speed:</span>
+                        <span class="speed-chip" data-speed="0.8">0.8x</span>
+                        <span class="speed-chip active" data-speed="1.0">1.0x</span>
+                        <span class="speed-chip" data-speed="1.2">1.2x</span>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="screen-actions-footer">
+                <button class="btn-secondary" id="btn-voice-back" data-i18n="buttons.back">← Back to Verdict</button>
+                <button class="btn-primary" id="btn-voice-restart-all" data-i18n="nav.restart">
+                    🔄 Start New Product Scan
+                </button>
+            </footer>
+        </section>
+
+    </main>
+
+    <!-- Modal for OCR processing -->
+    <div id="ocr-loader-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; flex-direction:column; gap:1.25rem;">
+        <div class="spinner" style="width:50px; height:50px; border-width:4px;"></div>
+        <h3 style="color:#FFF; font-weight:700;" data-i18n="scanScreen.processingText">Scanning label with Optical Character Recognition...</h3>
+    </div>
+
+    <!-- Application Script (ES Module) -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
